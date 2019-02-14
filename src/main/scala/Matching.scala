@@ -1,3 +1,5 @@
+import dataServices._
+import model.Order
 /**
  * Created by Kotobotov.ru on 13.02.2019.
  */
@@ -33,42 +35,29 @@ object Matching extends App {
   val sellQue = scala.collection.mutable.PriorityQueue.empty[Order](Ordering.by(sellOrder)) // используется "куча(пирамида)" для эффективной сортировки порядка заявок в стакане
   val buyQue = scala.collection.mutable.PriorityQueue.empty[Order](Ordering.by(buyOrder)) // используется "куча(пирамида)" для эффективной сортировки порядка заявок в стакане
 
-  lazy val buyOrders = 0
-
-  val price = 12.9000000001 / 6
-  price.toInt
-
-  val dataStore = new FileIO with MokupData
+  val dataStore = new OrdersFromFile
 
   while(!dataStore.isEmpty){
-    dataStore.next
+    val currentOrder =  dataStore.next
+    TradeSystem.execute(currentOrder)
 
-  sellQue.enqueue(
-    inputData:_*
-  )
-
-  buyQue.enqueue(
-    inputData:_*
-  )
   }
-  val curOrder = sellQue.dequeue()
 
-
-
-
-
-
-  TradeSystem.obrabotat(curOrder)
+    sellQue.dequeue()
 
   case object TradeSystem{
     def stakan(tiket:String) = Map("C" -> scala.collection.mutable.PriorityQueue[Order])
-    def obrabotat(order:Order) =
+    def execute(order:Order) ={
+
+      sellQue.enqueue(
+        inputData:_*
+      )
+
+      buyQue.enqueue(
+        inputData:_*
+      )
+
+    }
 
   }
-//sellOrder(sellQue.dequeue())
-//sellOrder(sellQue.dequeue())
-//sellOrder(sellQue.dequeue())
-//sellOrder(sellQue.dequeue())
-
-  buyQue.dequeueAll
 }

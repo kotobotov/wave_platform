@@ -1,4 +1,6 @@
 import org.scalatest.FreeSpec
+import Matching.buyQue
+import dataServices.MokupData
 /**
   * Created by Kotobotov.ru on 13.02.2019.
   */
@@ -6,7 +8,18 @@ class MatchingTest extends FreeSpec {
 
 // очередность исполнения - сначало используются заявки которые есть в стакане, затем выставляется ордер
 "Проверка стакана" -{
-  "на покупку" in {}
+
+  val data = new MokupData {}
+  "на покупку" in {
+println(data.next)
+
+//sellOrder(sellQue.dequeue())
+//sellOrder(sellQue.dequeue())
+//sellOrder(sellQue.dequeue())
+//sellOrder(sellQue.dequeue())
+
+    buyQue.dequeueAll
+  }
   "на продажу" in {}
 }
 
