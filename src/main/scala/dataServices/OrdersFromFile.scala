@@ -14,7 +14,7 @@ class OrdersFromFile extends OrderService {
         Order(OrderService.increasedId, client, if (direction == "b") Buy else Sell, ticket, price.toInt, count.toInt)
     }
   }
-  private val inputData = Source.fromFile(Files.ORDERS).getLines
+  val inputData = Source.fromFile(Files.ORDERS).getLines
   override def next: Order = parse(inputData.next())
   override def isEmpty: Boolean = inputData.isEmpty
 }

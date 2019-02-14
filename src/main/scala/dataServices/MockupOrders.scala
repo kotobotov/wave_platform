@@ -6,8 +6,8 @@ import model._
  * Created by Kotobotov.ru on 13.02.2019.
  */
 
-class MockupOrders extends OrderService{
-  val inputData =  List(
+class MockupOrders extends OrderService {
+  private val inputData =  List(
     Order(1, "C1",Sell, "C", 100, 10),
     Order(2, "C2",Sell, "C", 99, 10),
     Order(3, "C3",Sell, "C", 100, 10),
@@ -17,8 +17,7 @@ class MockupOrders extends OrderService{
     Order(7, "C1",Sell, "C", 99, 10),
     Order(8, "C1",Sell, "C", 100, 10)
   ).toIterator
-
-  def isEmpty = inputData.isEmpty
-  def next = inputData.next()
+  override def next: Order = inputData.next()
+  override def isEmpty: Boolean = inputData.isEmpty
 }
 
