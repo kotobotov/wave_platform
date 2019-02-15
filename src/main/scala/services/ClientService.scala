@@ -1,4 +1,4 @@
-package dataServices
+package services
 import scala.io.Source
 import model._
 

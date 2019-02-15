@@ -1,4 +1,4 @@
-package dataServices
+package services
 import model.Client
 import config.Files
 import scala.io.Source
