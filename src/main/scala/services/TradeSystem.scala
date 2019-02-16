@@ -10,7 +10,8 @@ import scala.collection.mutable
 object TradeSystem {
 
   private val clientStore = mutable.HashMap.empty[String, Client]
-
+  def loadClient(client: Client) = clientStore.put(client.id, client)
+  def loadAllClients(clients: ClientService) = while (!clients.isEmpty) loadClient(clients.next)
 
   def fromMarketToClient(order: Order) = {
     //todo dodelat vozvrat sredstv
