@@ -13,16 +13,16 @@ class MatchingTest extends FreeSpec {
     val clients = new MockupClients
 
     "на покупку" in {
+      val clients = new MockupClients
       TradeSystem.loadAllClients(clients)
       val currentOrder = data.next
-      TradeSystem.execute(currentOrder)
-      println(TradeSystem.market((currentOrder.ticket, currentOrder.direction)))
+      while (!data.isEmpty) {
+        TradeSystem.execute(data.next)
+      }
+      //println(TradeSystem.market((currentOrder.ticket, currentOrder.direction)).dequeueAll)
+      //println(TradeSystem.market((currentOrder.ticket, currentOrder.direction.reverse)).dequeueAll)
 
       TradeSystem.backUnfinishedOrders
-//sellOrder(sellQue.dequeue())
-//sellOrder(sellQue.dequeue())
-//sellOrder(sellQue.dequeue())
-//sellOrder(sellQue.dequeue())
 
     }
     "на продажу" in {}
