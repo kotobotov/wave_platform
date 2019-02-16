@@ -11,11 +11,20 @@ object TradeSystem {
 
   private val clientStore = mutable.HashMap.empty[String, Client]
   def loadClient(client: Client) = clientStore.put(client.id, client)
-  def loadAllClients(clients: ClientService) = while (!clients.isEmpty) loadClient(clients.next)
+  def loadAllClients(clients: ClientService) =
+    while (!clients.isEmpty) loadClient(clients.next)
 
-  def fromMarketToClient(order: Order) = {
+  def fromMarketToClient(order: Order): Boolean = {
     //todo dodelat vozvrat sredstv
-    println("vozvrat " + order.toString)
+    println("processed: " + order.toString)
+    order match {
+      case Order(_, clientId, Sell, ticket, price, amount) =>
+        clientStore(order.clientId).stocks(ticket) += amount
+        true
+      case Order(_, clientId, Buy, ticket, price, amount) =>
+        clientStore(order.clientId).balance += (amount * price)
+        true
+    }
   }
   def backUnfinishedOrders: Unit = {
     for {
@@ -40,8 +49,7 @@ object TradeSystem {
   def writeState = {
     import java.io.{File, PrintWriter}
     val writer = new PrintWriter(new File(Files.RESULT))
-    //reflect.io.File~.File("filename").writeAll("hello world")
-    clientStore.values.foreach(client => writer.write(client.toString))
+    clientStore.values.toList.sortBy(_.id).foreach(client => writer.write(client.toString + "\n"))
     writer.close()
   }
 
