@@ -2,21 +2,27 @@ package services
 import config.Files
 import model._
 
+import scala.collection.mutable
+
 /**
   * Created by Kotobotov.ru on 15.02.2019.
   */
 object TradeSystem {
-  def returReserev(order: Order) = {
+
+  private val clientStore = mutable.HashMap.empty[String, Client]
+
+
+  def fromMarketToClient(order: Order) = {
+    //todo dodelat vozvrat sredstv
     println("vozvrat " + order.toString)
   }
   def backUnfinishedOrders: Unit = {
     for {
       stakan <- market.values
       order <- stakan
-    } returReserev(order)
+    } fromMarketToClient(order)
   }
 
-  var clients = Array.empty[Client]
   val market
     : Map[(String, Direction), scala.collection.mutable.PriorityQueue[Order]] =
     Map(
@@ -34,7 +40,7 @@ object TradeSystem {
     import java.io.{File, PrintWriter}
     val writer = new PrintWriter(new File(Files.RESULT))
     //reflect.io.File~.File("filename").writeAll("hello world")
-    clients.foreach(client => writer.write(client.toString))
+    clientStore.values.foreach(client => writer.write(client.toString))
     writer.close()
   }
 
@@ -60,27 +66,51 @@ object TradeSystem {
   }
   // для стакана пока не подобрал понятного термина
   def putToStakan(sell: Order, buy: Order): Unit = {
+    val usedPrice = if (sell.id < buy.id) sell.price else buy.price // используется цена той заявки которая была раньше в системе
     if (sell.amount != 0 && buy.amount != 0 && sell.price <= buy.price)
-      if (sell.amount < buy.amount)
-        // todo здесь надо списать бабло и бумаги с клиента
+      if (sell.amount < buy.amount) {
+        fromMarketToClient(sell.copy(price = usedPrice, direction = Buy))
+        fromMarketToClient(
+          buy.copy(price = usedPrice, direction = Sell, amount = sell.amount)
+        )
         putToStakan(
           orderFromMarket(sell.ticket, Sell),
           buy.copy(amount = buy.amount - sell.amount)
         )
-      else
+      } else {
+        fromMarketToClient(
+          sell.copy(price = usedPrice, direction = Buy, amount = buy.amount)
+        )
+        fromMarketToClient(buy.copy(price = usedPrice, direction = Sell))
         putToStakan(
           sell.copy(amount = sell.amount - buy.amount),
           orderFromMarket(buy.ticket, Buy)
         )
-    else {
+      } else {
       market(sell.ticket, Sell) += sell
       market(buy.ticket, Buy) += buy
     }
   }
 
-  def loadClients(clients: Array[Client]) = this.clients = clients
-  def execute(order: Order) = {
+  def reserve(order: Order): Boolean = {
     order match {
+      case Order(_, clientId, Sell, ticket, price, amount) =>
+        val clientStock = clientStore(order.clientId).stocks
+        if (clientStock(ticket) >= amount) {
+          clientStock(ticket) -= amount
+          true
+        } else false
+      case Order(_, clientId, Buy, ticket, price, amount) =>
+        val client = clientStore(order.clientId)
+        if (client.balance >= (amount * price)) {
+          client.balance -= (amount * price)
+          true
+        } else false
+    }
+  }
+
+  def execute(order: Order) = {
+    if (reserve(order)) order match {
       case Order(_, clientId, Sell, ticket, price, amount) =>
         putToStakan(order, orderFromMarket(ticket, Buy))
       case Order(_, clientId, Buy, ticket, price, amount) =>
