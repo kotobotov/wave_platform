@@ -5,7 +5,7 @@ import services._
   * Created by Kotobotov.ru on 13.02.2019.
   */
 class MatchingTest extends FreeSpec {
-
+val totalBalances = List(26470, 2140, 1600, 3480, 2210) // итоговый сумма балансов
 // очередность исполнения - сначало используются заявки которые есть в стакане, затем выставляется ордер
   "Проверка стакана" - {
 

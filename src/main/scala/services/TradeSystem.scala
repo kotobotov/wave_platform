@@ -15,13 +15,12 @@ object TradeSystem {
     while (!clients.isEmpty) loadClient(clients.next)
 
   def fromMarketToClient(order: Order): Boolean = {
-    //todo dodelat vozvrat sredstv
     println("processed: " + order.toString)
     order match {
-      case Order(_, clientId, Sell, ticket, price, amount) =>
+      case Order(_, _, Sell, ticket, _, amount) =>
         clientStore(order.clientId).stocks(ticket) += amount
         true
-      case Order(_, clientId, Buy, ticket, price, amount) =>
+      case Order(_, _, Buy, _, price, amount) =>
         clientStore(order.clientId).balance += (amount * price)
         true
     }
@@ -103,13 +102,13 @@ object TradeSystem {
 
   def reserve(order: Order): Boolean = {
     order match {
-      case Order(_, clientId, Sell, ticket, price, amount) =>
+      case Order(_, _, Sell, ticket, _, amount) =>
         val clientStock = clientStore(order.clientId).stocks
         if (clientStock(ticket) >= amount) {
           clientStock(ticket) -= amount
           true
         } else false
-      case Order(_, clientId, Buy, ticket, price, amount) =>
+      case Order(_, _, Buy, _, price, amount) =>
         val client = clientStore(order.clientId)
         if (client.balance >= (amount * price)) {
           client.balance -= (amount * price)
@@ -120,9 +119,9 @@ object TradeSystem {
 
   def execute(order: Order) = {
     if (reserve(order)) order match {
-      case Order(_, clientId, Sell, ticket, price, amount) =>
+      case Order(_, _, Sell, ticket, _, _) =>
         putToStakan(order, orderFromMarket(ticket, Buy))
-      case Order(_, clientId, Buy, ticket, price, amount) =>
+      case Order(_, _, Buy, ticket, _, _) =>
         putToStakan(orderFromMarket(ticket, Sell), order)
     }
   }
