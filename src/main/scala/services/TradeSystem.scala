@@ -28,8 +28,14 @@ object TradeSystem {
   def backUnfinishedOrders: Unit = {
     for {
       stakan <- market.values
-      order <- stakan
+      order <- stakan.dequeueAll
     } fromMarketToClient(order)
+  }
+
+  def prepareSystem: Unit = {
+    for {
+      stakan <- market.values
+    } stakan.dequeueAll
   }
 
   val market
